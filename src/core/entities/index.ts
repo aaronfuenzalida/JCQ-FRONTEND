@@ -4,4 +4,5 @@ export * from './project.entity';
 export * from './paid.entity';
 export * from './auth.entity';
 export * from './api-response.entity';
+export * from './dashboard.entity';
 

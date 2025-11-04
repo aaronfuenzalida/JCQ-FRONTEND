@@ -253,8 +253,8 @@ export function Sidebar() {
         </Box>
       )}
 
-      {/* Mobile Menu Button */}
-      {isMobile && (
+      {/* Mobile Menu Button - Hide when drawer is open */}
+      {isMobile && !mobileOpened && (
         <ActionIcon
           variant="filled"
           color="orange"

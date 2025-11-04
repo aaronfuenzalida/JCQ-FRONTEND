@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import "@mantine/dates/styles.css";
 import { MantineAppProvider } from "@/src/presentation/providers/mantine-provider";
+import { ToastProvider } from "@/src/presentation/providers/toast-provider";
 import { ColorSchemeScript } from "@mantine/core";
 
 const montserrat = Montserrat({
@@ -30,7 +32,10 @@ export default function RootLayout({
         className={`${montserrat.variable} antialiased`}
         suppressHydrationWarning
       >
-        <MantineAppProvider>{children}</MantineAppProvider>
+        <MantineAppProvider>
+          {children}
+          <ToastProvider />
+        </MantineAppProvider>
       </body>
     </html>
   );

@@ -1,18 +1,24 @@
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale/es';
 
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('es-AR', {
-    style: 'currency',
-    currency: 'ARS',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-};
-
 export const formatDate = (date: string | Date, formatStr: string = 'dd/MM/yyyy'): string => {
   try {
-    const dateObj = typeof date === 'string' ? parseISO(date) : date;
+    let dateObj: Date;
+    
+    if (typeof date === 'string') {
+      // Parse ISO string
+      dateObj = parseISO(date);
+      
+      // If it's a date-only string (YYYY-MM-DD) without time, treat as local date
+      // to avoid timezone conversion issues
+      if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+        const [year, month, day] = date.split('-').map(Number);
+        dateObj = new Date(year, month - 1, day);
+      }
+    } else {
+      dateObj = date;
+    }
+    
     return format(dateObj, formatStr, { locale: es });
   } catch {
     return '-';

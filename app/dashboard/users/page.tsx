@@ -61,6 +61,7 @@ export default function UsersPage() {
 
     fetchUsers(cleanFilters);
   }, [
+    fetchUsers,
     filters.page,
     filters.limit,
     filters.email,

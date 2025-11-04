@@ -72,6 +72,7 @@ export default function ProjectsPage() {
 
     fetchProjects(cleanFilters);
   }, [
+    fetchProjects,
     filters.page,
     filters.limit,
     filters.status,
@@ -83,6 +84,20 @@ export default function ProjectsPage() {
     filters.amountMin,
     filters.amountMax,
   ]);
+
+  // Refetch when payments modal closes to update project data
+  useEffect(() => {
+    if (!isPaymentsOpen && selectedProject) {
+      // Modal closed, refetch to update data
+      const cleanFilters: ProjectFilters = {};
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== "" && value !== null) {
+          cleanFilters[key as keyof ProjectFilters] = value as never;
+        }
+      });
+      fetchProjects(cleanFilters);
+    }
+  }, [isPaymentsOpen]);
 
   const handleViewPayments = (project: Project) => {
     setSelectedProject(project);
@@ -401,6 +416,16 @@ export default function ProjectsPage() {
         isOpen={isPaymentsOpen}
         onClose={() => setIsPaymentsOpen(false)}
         project={selectedProject}
+        onPaymentChange={() => {
+          // Refetch projects when a payment is added/deleted
+          const cleanFilters: ProjectFilters = {};
+          Object.entries(filters).forEach(([key, value]) => {
+            if (value !== undefined && value !== "" && value !== null) {
+              cleanFilters[key as keyof ProjectFilters] = value as never;
+            }
+          });
+          fetchProjects(cleanFilters);
+        }}
       />
     </Box>
   );

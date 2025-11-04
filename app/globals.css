@@ -124,3 +124,108 @@ body {
     padding-top: 60px !important;
   }
 }
+
+/* Mantine DatePicker Custom Styling - JCQ Andamios Theme */
+
+/* Calendar dropdown */
+.mantine-DatePickerInput-dropdown,
+.mantine-DatePicker-dropdown {
+  background-color: #1a1a1a !important;
+  border: 1px solid #2d2d2d !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Calendar header */
+.mantine-DatePicker-calendarHeader {
+  background-color: #1a1a1a !important;
+  border-bottom: 1px solid #2d2d2d !important;
+}
+
+.mantine-DatePicker-calendarHeaderLevel {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.mantine-DatePicker-calendarHeaderLevel:hover {
+  background-color: #2d2d2d !important;
+}
+
+.mantine-DatePicker-calendarHeaderControl {
+  color: #ffffff !important;
+}
+
+.mantine-DatePicker-calendarHeaderControl:hover {
+  background-color: #2d2d2d !important;
+}
+
+/* Month/Year selector */
+.mantine-DatePicker-monthsList,
+.mantine-DatePicker-yearsList {
+  background-color: #1a1a1a !important;
+}
+
+.mantine-DatePicker-pickerControl {
+  color: #ffffff !important;
+}
+
+.mantine-DatePicker-pickerControl:hover {
+  background-color: #2d2d2d !important;
+}
+
+.mantine-DatePicker-pickerControl[data-selected] {
+  background-color: var(--brand-orange) !important;
+  color: #ffffff !important;
+}
+
+/* Weekdays header */
+.mantine-DatePicker-weekday {
+  color: #9ca3af !important;
+  font-weight: 500 !important;
+}
+
+/* Day cells */
+.mantine-DatePicker-day {
+  color: #ffffff !important;
+  border-radius: 4px !important;
+}
+
+.mantine-DatePicker-day:hover {
+  background-color: #2d2d2d !important;
+}
+
+.mantine-DatePicker-day[data-selected] {
+  background-color: var(--brand-orange) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.mantine-DatePicker-day[data-selected]:hover {
+  background-color: var(--brand-orange-dark) !important;
+}
+
+.mantine-DatePicker-day[data-weekend] {
+  color: #ff6b35 !important;
+}
+
+.mantine-DatePicker-day[data-outside] {
+  color: #6b7280 !important;
+}
+
+.mantine-DatePicker-day[data-today] {
+  border: 1px solid var(--brand-orange) !important;
+}
+
+/* Input field */
+.mantine-DatePickerInput-input {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #ffffff !important;
+}
+
+.mantine-DatePickerInput-input:focus {
+  border-color: var(--brand-orange) !important;
+}
+
+.mantine-DatePickerInput-input::placeholder {
+  color: #6b7280 !important;
+}

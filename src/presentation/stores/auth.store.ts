@@ -2,6 +2,7 @@ import { create } from "zustand";
 import Cookies from "js-cookie";
 import type { User, LoginDto } from "@/src/core/entities";
 import { authApi } from "@/src/infrastructure/api";
+import { showToast, formatErrorMessage } from "@/src/presentation/utils";
 
 interface AuthState {
   user: User | null;
@@ -85,14 +86,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: null,
       });
+
+      showToast.success(`¡Bienvenido ${response.user.firstName}!`);
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al iniciar sesión";
+
       set({
         isLoading: false,
-        error:
-          error instanceof Error
-            ? error.message
-            : String(error) || "Error al iniciar sesión",
+        error: errorMessage,
       });
+
+      showToast.error(errorMessage);
       throw error;
     }
   },
@@ -107,6 +112,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       isAuthenticated: false,
       error: null,
     });
+
+    showToast.info("Sesión cerrada correctamente");
   },
 
   clearError: () => set({ error: null }),

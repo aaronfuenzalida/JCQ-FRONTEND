@@ -29,7 +29,11 @@ import {
   Badge,
 } from "@mantine/core";
 import { PaginationControls } from "@/src/presentation/components/common/pagination-controls";
-import { formatCurrency, formatDate } from "@/src/presentation/utils";
+import {
+  formatDate,
+  formatARS,
+  generatePaymentReceipt,
+} from "@/src/presentation/utils";
 import type { Paid, PaidFilters } from "@/src/core/entities";
 
 export default function PaidsPage() {
@@ -59,6 +63,7 @@ export default function PaidsPage() {
 
     fetchPaids(cleanFilters);
   }, [
+    fetchPaids,
     filters.page,
     filters.limit,
     filters.projectId,
@@ -73,6 +78,19 @@ export default function PaidsPage() {
     if (confirm("¿Estás seguro de eliminar este pago?")) {
       await deletePaid(id);
     }
+  };
+
+  const handleGenerateReceipt = (paid: Paid) => {
+    if (!paid.project?.client) {
+      alert("No se puede generar el comprobante: falta información del cliente");
+      return;
+    }
+
+    generatePaymentReceipt({
+      paid,
+      client: paid.project.client,
+      projectName: `Proyecto #${paid.project.id}`,
+    });
   };
 
   const handleClearFilters = () => {
@@ -298,8 +316,8 @@ export default function PaidsPage() {
                   >
                     <Stack gap="md">
                       <Group justify="space-between">
-                        <Badge color="green" variant="light">
-                          {formatCurrency(paid.amount)}
+                        <Badge color="green" variant="light" size="lg">
+                          {formatARS(paid.amount)}
                         </Badge>
                         {paid.bill && (
                           <Badge color="blue" variant="light">
@@ -328,7 +346,7 @@ export default function PaidsPage() {
                               {paid.project.client?.fullname || "Cliente"}
                             </Text>
                             <Text size="xs" c="#6b7280">
-                              Proyecto: {formatCurrency(paid.project.amount)}
+                              Proyecto: {formatARS(paid.project.amount)}
                             </Text>
                           </Box>
                         )}
@@ -337,8 +355,17 @@ export default function PaidsPage() {
                       <Group justify="flex-end" gap="xs">
                         <ActionIcon
                           variant="light"
+                          color="orange"
+                          onClick={() => handleGenerateReceipt(paid)}
+                          title="Descargar comprobante PDF"
+                        >
+                          <Receipt size={16} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="light"
                           color="red"
                           onClick={() => handleDelete(paid.id)}
+                          title="Eliminar pago"
                         >
                           <Trash2 size={16} />
                         </ActionIcon>

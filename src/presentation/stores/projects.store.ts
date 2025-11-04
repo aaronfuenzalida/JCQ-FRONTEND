@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import type {
   Project,
   CreateProjectDto,
@@ -6,8 +6,9 @@ import type {
   UpdateProjectStatusDto,
   ProjectFilters,
   PaginationMeta,
-} from '@/src/core/entities';
-import { projectsApi } from '@/src/infrastructure/api';
+} from "@/src/core/entities";
+import { projectsApi } from "@/src/infrastructure/api";
+import { showToast, formatErrorMessage } from "@/src/presentation/utils";
 
 interface ProjectsState {
   projects: Project[];
@@ -22,7 +23,10 @@ interface ProjectsState {
   fetchProjectById: (id: string) => Promise<void>;
   createProject: (data: CreateProjectDto) => Promise<Project>;
   updateProject: (id: string, data: UpdateProjectDto) => Promise<Project>;
-  updateProjectStatus: (id: string, data: UpdateProjectStatusDto) => Promise<Project>;
+  updateProjectStatus: (
+    id: string,
+    data: UpdateProjectStatusDto
+  ) => Promise<Project>;
   deleteProject: (id: string) => Promise<void>;
   setSelectedProject: (project: Project | null) => void;
   clearError: () => void;
@@ -38,7 +42,7 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
   fetchProjects: async (filters?: ProjectFilters) => {
     const currentTimestamp = Date.now();
-    
+
     // Prevent race condition
     if (get().isLoading && currentTimestamp - get().lastFetchTimestamp < 1000) {
       return;
@@ -48,7 +52,7 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
     try {
       const response = await projectsApi.getPaginated(filters);
-      
+
       // Only update if this is still the most recent request
       if (currentTimestamp >= get().lastFetchTimestamp) {
         set({
@@ -59,9 +63,11 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
       }
     } catch (error: unknown) {
       if (currentTimestamp >= get().lastFetchTimestamp) {
+        const errorMessage =
+          formatErrorMessage(error) || "Error al cargar proyectos";
         set({
           isLoading: false,
-          error: error instanceof Error ? error.message : String(error) || 'Error al cargar proyectos',
+          error: errorMessage,
         });
       }
     }
@@ -77,9 +83,11 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
         isLoading: false,
       });
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al cargar proyecto";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : String(error) || 'Error al cargar proyecto',
+        error: errorMessage,
       });
     }
   },
@@ -89,19 +97,23 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
     try {
       const newProject = await projectsApi.create(data);
-      
+
       // Add to list and update state atomically
       set((state) => ({
         projects: [newProject, ...state.projects],
         isLoading: false,
       }));
 
+      showToast.success("Proyecto creado exitosamente");
       return newProject;
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al crear proyecto";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : String(error) || 'Error al crear proyecto',
+        error: errorMessage,
       });
+      showToast.error(errorMessage);
       throw error;
     }
   },
@@ -111,20 +123,27 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
     try {
       const updatedProject = await projectsApi.update(id, data);
-      
+
       // Update in list atomically
       set((state) => ({
         projects: state.projects.map((p) => (p.id === id ? updatedProject : p)),
-        selectedProject: state.selectedProject?.id === id ? updatedProject : state.selectedProject,
+        selectedProject:
+          state.selectedProject?.id === id
+            ? updatedProject
+            : state.selectedProject,
         isLoading: false,
       }));
 
+      showToast.success("Proyecto actualizado exitosamente");
       return updatedProject;
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al actualizar proyecto";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar proyecto',
+        error: errorMessage,
       });
+      showToast.error(errorMessage);
       throw error;
     }
   },
@@ -134,20 +153,27 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
     try {
       const updatedProject = await projectsApi.updateStatus(id, data);
-      
+
       // Update in list atomically
       set((state) => ({
         projects: state.projects.map((p) => (p.id === id ? updatedProject : p)),
-        selectedProject: state.selectedProject?.id === id ? updatedProject : state.selectedProject,
+        selectedProject:
+          state.selectedProject?.id === id
+            ? updatedProject
+            : state.selectedProject,
         isLoading: false,
       }));
 
+      showToast.success("Estado del proyecto actualizado");
       return updatedProject;
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al actualizar estado";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar estado',
+        error: errorMessage,
       });
+      showToast.error(errorMessage);
       throw error;
     }
   },
@@ -157,23 +183,29 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
 
     try {
       await projectsApi.delete(id);
-      
+
       // Remove from list atomically
       set((state) => ({
         projects: state.projects.filter((p) => p.id !== id),
-        selectedProject: state.selectedProject?.id === id ? null : state.selectedProject,
+        selectedProject:
+          state.selectedProject?.id === id ? null : state.selectedProject,
         isLoading: false,
       }));
+
+      showToast.success("Proyecto eliminado exitosamente");
     } catch (error: unknown) {
+      const errorMessage =
+        formatErrorMessage(error) || "Error al eliminar proyecto";
       set({
         isLoading: false,
-        error: error instanceof Error ? error.message : String(error) || 'Error al eliminar proyecto',
+        error: errorMessage,
       });
+      showToast.error(errorMessage);
       throw error;
     }
   },
 
-  setSelectedProject: (project: Project | null) => set({ selectedProject: project }),
+  setSelectedProject: (project: Project | null) =>
+    set({ selectedProject: project }),
   clearError: () => set({ error: null }),
 }));
-

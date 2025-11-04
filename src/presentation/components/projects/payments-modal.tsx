@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Calendar, FileText } from "lucide-react";
-import type { Project, CreatePaidDto } from "@/src/core/entities";
+import { Plus, Trash2, Calendar, FileText, Receipt } from "lucide-react";
+import type { Project, CreatePaidDto, Paid } from "@/src/core/entities";
 import { usePaidsStore, useProjectsStore } from "@/src/presentation/stores";
 import {
   Modal,
   Button,
   TextInput,
+  NumberInput,
   Badge,
   Stack,
   Group,
@@ -17,26 +18,42 @@ import {
   ScrollArea,
   ActionIcon,
 } from "@mantine/core";
-import { formatCurrency, formatDate } from "@/src/presentation/utils";
+import { DatePickerInput } from "@mantine/dates";
+import "dayjs/locale/es";
+import {
+  formatDate,
+  formatARS,
+  generatePaymentReceipt,
+} from "@/src/presentation/utils";
+import { DeleteConfirmationModal } from "@/src/presentation/components/common";
 
 interface PaymentsModalProps {
   isOpen: boolean;
   onClose: () => void;
   project: Project | null;
+  onPaymentChange?: () => void; // Callback when payments change
 }
 
 export function PaymentsModal({
   isOpen,
   onClose,
   project,
+  onPaymentChange,
 }: PaymentsModalProps) {
   const { paids, fetchPaidsByProject, createPaid, deletePaid, isLoading } =
     usePaidsStore();
   const { fetchProjectById } = useProjectsStore();
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedPaid, setSelectedPaid] = useState<Paid | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [formData, setFormData] = useState<{
+    amount: string;
+    date: Date | string | null;
+    bill: string;
+  }>({
     amount: "",
-    date: "",
+    date: null,
     bill: "",
   });
 
@@ -48,38 +65,119 @@ export function PaymentsModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("🔵 handleSubmit called", { formData, project });
 
-    if (!project) return;
+    if (!project) {
+      console.error("❌ No project");
+      return;
+    }
+
+    // Validate required fields
+    if (!formData.date || !formData.amount) {
+      console.error("❌ Missing required fields", { 
+        date: formData.date, 
+        amount: formData.amount 
+      });
+      return;
+    }
+
+    console.log("✅ Validation passed, creating paid...");
 
     try {
+      // Format date to YYYY-MM-DD (local timezone, no UTC conversion)
+      let dateString: string;
+      if (formData.date instanceof Date) {
+        // Get local date components to avoid timezone issues
+        const year = formData.date.getFullYear();
+        const month = String(formData.date.getMonth() + 1).padStart(2, '0');
+        const day = String(formData.date.getDate()).padStart(2, '0');
+        dateString = `${year}-${month}-${day}`;
+      } else if (typeof formData.date === 'string') {
+        // Already in string format, validate and use
+        dateString = formData.date;
+      } else {
+        throw new Error("Invalid date format");
+      }
+      
       const data: CreatePaidDto = {
         amount: parseFloat(formData.amount),
-        date: formData.date,
+        date: dateString,
         bill: formData.bill,
         projectId: project.id,
       };
 
-      await createPaid(data);
+      console.log("📤 Sending data:", data);
+      const newPaid = await createPaid(data);
+      console.log("✅ Paid created successfully", newPaid);
+      
+      // Generate PDF receipt automatically after creating the payment
+      if (newPaid && project.client) {
+        console.log("📄 Generating PDF receipt...");
+        generatePaymentReceipt({
+          paid: newPaid,
+          client: project.client,
+          projectName: project.locationAddress || "Proyecto",
+        });
+      }
+      
       await fetchProjectById(project.id); // Refresh project data
+      
+      // Notify parent component to refresh
+      if (onPaymentChange) {
+        onPaymentChange();
+      }
 
-      setFormData({ amount: "", date: "", bill: "" });
+      setFormData({ amount: "", date: null, bill: "" });
       setShowForm(false);
     } catch (error) {
+      console.error("❌ Error creating paid:", error);
       // Error handled by store
     }
   };
 
-  const handleDelete = async (paidId: string) => {
-    if (!confirm("¿Estás seguro de eliminar este pago?")) return;
+  const handleDeleteClick = (paid: Paid) => {
+    setSelectedPaid(paid);
+    setShowDeleteModal(true);
+  };
 
+  const handleDeleteConfirm = async () => {
+    if (!selectedPaid) return;
+
+    setIsDeleting(true);
     try {
-      await deletePaid(paidId);
+      await deletePaid(selectedPaid.id);
       if (project) {
         await fetchProjectById(project.id); // Refresh project data
       }
+      
+      // Notify parent component to refresh
+      if (onPaymentChange) {
+        onPaymentChange();
+      }
+      
+      setShowDeleteModal(false);
+      setSelectedPaid(null);
     } catch (error) {
       // Error handled by store
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const handleGenerateReceipt = (paidId: string) => {
+    if (!project?.client) {
+      alert("No se puede generar el comprobante: falta información del cliente");
+      return;
+    }
+
+    const paid = paids.find((p) => p.id === paidId);
+    if (!paid) return;
+
+    generatePaymentReceipt({
+      paid,
+      client: project.client,
+      projectName: `Proyecto #${project.id} - ${project.locationAddress}`,
+    });
   };
 
   if (!project) return null;
@@ -132,7 +230,7 @@ export function PaymentsModal({
                 Monto Total:
               </Text>
               <Text size="sm" fw={600} c="white">
-                {formatCurrency(project.amount)}
+                {formatARS(project.amount)}
               </Text>
             </Group>
             <Group justify="space-between">
@@ -140,7 +238,7 @@ export function PaymentsModal({
                 Total Pagado:
               </Text>
               <Text size="sm" fw={600} c="#10b981">
-                {formatCurrency(project.totalPaid)}
+                {formatARS(project.totalPaid)}
               </Text>
             </Group>
             <Group justify="space-between">
@@ -148,7 +246,7 @@ export function PaymentsModal({
                 Restante:
               </Text>
               <Text size="sm" fw={600} c="#f59e0b">
-                {formatCurrency(project.rest)}
+                {formatARS(project.rest)}
               </Text>
             </Group>
           </Stack>
@@ -180,26 +278,41 @@ export function PaymentsModal({
           >
             <form onSubmit={handleSubmit}>
               <Stack gap="md">
-                <TextInput
+                <NumberInput
                   label="Monto"
-                  type="number"
-                  placeholder="100000"
-                  value={formData.amount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, amount: e.target.value })
-                  }
+                  placeholder="100.000"
+                  value={formData.amount ? parseFloat(formData.amount) : undefined}
+                  onChange={(value) => {
+                    console.log("💰 Amount changed:", value);
+                    setFormData({ ...formData, amount: value?.toString() || "" });
+                  }}
                   required
+                  min={0}
+                  hideControls
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  decimalScale={0}
                   styles={inputStyles}
                 />
-                <TextInput
+                <DatePickerInput
                   label="Fecha"
-                  type="date"
+                  placeholder="Seleccionar fecha"
                   value={formData.date}
-                  onChange={(e) =>
-                    setFormData({ ...formData, date: e.target.value })
-                  }
+                  onChange={(value) => {
+                    console.log("📅 Date changed:", value);
+                    setFormData({ ...formData, date: value as Date | null });
+                  }}
                   required
-                  styles={inputStyles}
+                  locale="es"
+                  valueFormat="DD/MM/YYYY"
+                  styles={{
+                    label: { color: "#e5e7eb", marginBottom: "0.5rem" },
+                    input: {
+                      backgroundColor: "#2d2d2d",
+                      borderColor: "#404040",
+                      color: "white",
+                    },
+                  }}
                 />
                 <TextInput
                   label="Nº Factura (opcional)"
@@ -257,8 +370,8 @@ export function PaymentsModal({
                   <Group justify="space-between" align="center">
                     <Box style={{ flex: 1 }}>
                       <Group gap="xs" mb={4}>
-                        <Text fw={600} c="white">
-                          {formatCurrency(paid.amount)}
+                        <Text fw={600} c="white" size="lg">
+                          {formatARS(paid.amount)}
                         </Text>
                         {paid.bill && (
                           <Badge
@@ -278,14 +391,26 @@ export function PaymentsModal({
                         </Text>
                       </Group>
                     </Box>
-                    <ActionIcon
-                      variant="light"
-                      color="red"
-                      size="lg"
-                      onClick={() => handleDelete(paid.id)}
-                    >
-                      <Trash2 size={16} />
-                    </ActionIcon>
+                    <Group gap="xs">
+                      <ActionIcon
+                        variant="light"
+                        color="orange"
+                        size="lg"
+                        onClick={() => handleGenerateReceipt(paid.id)}
+                        title="Descargar comprobante PDF"
+                      >
+                        <Receipt size={16} />
+                      </ActionIcon>
+                      <ActionIcon
+                        variant="light"
+                        color="red"
+                        size="lg"
+                        onClick={() => handleDeleteClick(paid)}
+                        title="Eliminar pago"
+                      >
+                        <Trash2 size={16} />
+                      </ActionIcon>
+                    </Group>
                   </Group>
                 </Paper>
               ))
@@ -293,6 +418,26 @@ export function PaymentsModal({
           </Stack>
         </ScrollArea>
       </Stack>
+
+      {/* Delete Payment Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setSelectedPaid(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Eliminar Pago"
+        message="¿Está seguro que desea eliminar este pago?"
+        itemName={
+          selectedPaid
+            ? `${formatARS(selectedPaid.amount)} - ${formatDate(selectedPaid.date)}${
+                selectedPaid.bill ? ` - ${selectedPaid.bill}` : ""
+              }`
+            : ""
+        }
+        isLoading={isDeleting}
+      />
     </Modal>
   );
 }

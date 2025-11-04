@@ -48,6 +48,7 @@ export default function ClientsPage() {
 
     fetchClients(cleanFilters);
   }, [
+    fetchClients,
     filters.page,
     filters.limit,
     filters.fullname,

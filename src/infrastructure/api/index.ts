@@ -4,4 +4,5 @@ export * from './users.api';
 export * from './clients.api';
 export * from './projects.api';
 export * from './paids.api';
+export * from './dashboard.api';
 

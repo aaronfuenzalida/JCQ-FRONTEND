@@ -45,8 +45,6 @@ const nextConfig: NextConfig = {
       process.env.NEXT_PUBLIC_BASE_URL ||
       "http://localhost:3000"; // Fallback for local development
 
-    console.log("🔗 Backend Proxy URL (rewrites):", backendUrl);
-
     return [
       {
         source: "/api/:path*",

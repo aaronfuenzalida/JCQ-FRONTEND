@@ -11,6 +11,7 @@ import {
   Modal,
   Button,
   TextInput,
+  NumberInput,
   Select,
   Group,
   Grid,
@@ -39,8 +40,12 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
   });
 
   useEffect(() => {
-    fetchAllClients();
-  }, []);
+    // Only fetch clients when the modal opens and we don't have clients yet
+    if (isOpen && clients.length === 0) {
+      fetchAllClients();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   useEffect(() => {
     if (project) {
@@ -154,15 +159,21 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
             </Grid.Col>
 
             <Grid.Col span={6}>
-              <TextInput
+              <NumberInput
                 label="Monto Total"
-                type="number"
-                placeholder="500000"
-                value={formData.amount}
-                onChange={(e) =>
-                  setFormData({ ...formData, amount: e.target.value })
+                placeholder="500.000"
+                value={
+                  formData.amount ? parseFloat(formData.amount) : undefined
+                }
+                onChange={(value) =>
+                  setFormData({ ...formData, amount: value?.toString() || "" })
                 }
                 required
+                min={0}
+                hideControls
+                thousandSeparator="."
+                decimalSeparator=","
+                decimalScale={0}
                 styles={{
                   label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                   input: {
@@ -194,7 +205,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
           />
 
           <Grid gutter="md">
-            <Grid.Col span={4}>
+            {/* <Grid.Col span={4}>
               <TextInput
                 label="Latitud (opcional)"
                 type="number"
@@ -234,18 +245,22 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                   },
                 }}
               />
-            </Grid.Col>
+            </Grid.Col> */}
 
             <Grid.Col span={4}>
-              <TextInput
+              <NumberInput
                 label="Trabajadores"
-                type="number"
                 placeholder="15"
-                value={formData.workers}
-                onChange={(e) =>
-                  setFormData({ ...formData, workers: e.target.value })
+                value={
+                  formData.workers ? parseInt(formData.workers) : undefined
+                }
+                onChange={(value) =>
+                  setFormData({ ...formData, workers: value?.toString() || "" })
                 }
                 required
+                min={1}
+                hideControls
+                decimalScale={0}
                 styles={{
                   label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                   input: {
