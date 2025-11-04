@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Building2 } from "lucide-react";
 import {
@@ -16,19 +15,56 @@ import {
   Alert,
 } from "@mantine/core";
 import { IconMail, IconLock } from "@tabler/icons-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useAuthStore } from "@/src/presentation/stores";
+
+// Zod schema for login validation
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "El correo electrónico es requerido")
+    .email("Debe ser un correo electrónico válido")
+    .transform((val) => val.trim()),
+  password: z
+    .string()
+    .min(1, "La contraseña es requerida")
+    .min(6, "La contraseña debe tener al menos 6 caracteres")
+    .transform((val) => val.trim()),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginFormMantine() {
   const router = useRouter();
   const { login, isLoading, error } = useAuthStore();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid, isDirty },
+    watch,
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange", // Validate on change
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
+  // Watch form values to enable/disable button
+  const email = watch("email");
+  const password = watch("password");
+
+  // Button should be disabled if fields are empty (after trim)
+  const isButtonDisabled =
+    !email?.trim() || !password?.trim() || !isValid || isLoading;
+
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({ email, password });
+      await login(data);
       router.push("/dashboard");
     } catch (err) {
       // Error is handled by the store
@@ -91,7 +127,7 @@ export function LoginFormMantine() {
               </Text>
             </div>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <Stack gap="lg">
                 {error && (
                   <Alert color="red" variant="light" title="Error">
@@ -102,17 +138,16 @@ export function LoginFormMantine() {
                 <TextInput
                   label="Correo Electrónico"
                   placeholder="correo@ejemplo.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  {...register("email")}
+                  error={errors.email?.message}
                   leftSection={<IconMail size={20} />}
                   size="md"
-                  required
                   autoComplete="email"
                   styles={{
                     label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                     input: {
                       backgroundColor: "#2d2d2d",
-                      borderColor: "#404040",
+                      borderColor: errors.email ? "#fa5252" : "#404040",
                       color: "white",
                       height: "48px",
                     },
@@ -122,17 +157,16 @@ export function LoginFormMantine() {
                 <PasswordInput
                   label="Contraseña"
                   placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  {...register("password")}
+                  error={errors.password?.message}
                   leftSection={<IconLock size={20} />}
                   size="md"
-                  required
                   autoComplete="current-password"
                   styles={{
                     label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                     input: {
                       backgroundColor: "#2d2d2d",
-                      borderColor: "#404040",
+                      borderColor: errors.password ? "#fa5252" : "#404040",
                       color: "white",
                       height: "48px",
                     },
@@ -145,6 +179,7 @@ export function LoginFormMantine() {
                   fullWidth
                   size="md"
                   loading={isLoading}
+                  disabled={isButtonDisabled}
                   mt="sm"
                   style={{ height: "48px" }}
                   color="orange"
