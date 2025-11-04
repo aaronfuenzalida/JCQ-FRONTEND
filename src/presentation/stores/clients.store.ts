@@ -56,11 +56,11 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
           isLoading: false,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (currentTimestamp >= get().lastFetchTimestamp) {
         set({
           isLoading: false,
-          error: error.message || 'Error al cargar clientes',
+          error: error instanceof Error ? error.message : String(error) || 'Error al cargar clientes',
         });
       }
     }
@@ -75,10 +75,10 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
         clients,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar clientes',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar clientes',
       });
     }
   },
@@ -92,10 +92,10 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
         selectedClient: client,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar cliente',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar cliente',
       });
     }
   },
@@ -113,10 +113,10 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
       }));
 
       return newClient;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al crear cliente',
+        error: error instanceof Error ? error.message : String(error) || 'Error al crear cliente',
       });
       throw error;
     }
@@ -136,10 +136,10 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
       }));
 
       return updatedClient;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al actualizar cliente',
+        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar cliente',
       });
       throw error;
     }
@@ -157,10 +157,10 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
         selectedClient: state.selectedClient?.id === id ? null : state.selectedClient,
         isLoading: false,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al eliminar cliente',
+        error: error instanceof Error ? error.message : String(error) || 'Error al eliminar cliente',
       });
       throw error;
     }

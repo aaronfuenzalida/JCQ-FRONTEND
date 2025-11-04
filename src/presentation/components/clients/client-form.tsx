@@ -49,6 +49,7 @@ export function ClientForm({ isOpen, onClose, client }: ClientFormProps) {
         dni: "",
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
   }, [client, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {

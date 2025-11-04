@@ -55,7 +55,7 @@ export default function UsersPage() {
     const cleanFilters: UserFilters = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== "" && value !== null) {
-        cleanFilters[key as keyof UserFilters] = value as any;
+        cleanFilters[key as keyof UserFilters] = value as never;
       }
     });
 
@@ -410,7 +410,7 @@ export default function UsersPage() {
           setIsFormOpen(false);
           setSelectedUser(null);
         }}
-        user={selectedUser}
+        user={selectedUser!}
       />
     </Box>
   );

@@ -42,7 +42,7 @@ export default function ClientsPage() {
     const cleanFilters: ClientFilters = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== "" && value !== null) {
-        cleanFilters[key as keyof ClientFilters] = value as any;
+        cleanFilters[key as keyof ClientFilters] = value as never;
       }
     });
 
@@ -351,7 +351,7 @@ export default function ClientsPage() {
           setIsFormOpen(false);
           setSelectedClient(null);
         }}
-        client={selectedClient}
+        client={selectedClient!}
       />
     </Box>
   );

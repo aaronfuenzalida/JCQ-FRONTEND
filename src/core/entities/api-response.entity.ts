@@ -21,44 +21,5 @@ export interface ApiError {
   path: string;
 }
 
-export interface PaginationParams {
-  page?: number;
-  limit?: number;
-}
-
-export interface UserFilters extends PaginationParams {
-  email?: string;
-  firstName?: string;
-  lastName?: string;
-  role?: string;
-  isActive?: boolean;
-}
-
-export interface ClientFilters extends PaginationParams {
-  fullname?: string;
-  phone?: string;
-  cuit?: string;
-  dni?: string;
-}
-
-export interface ProjectFilters extends PaginationParams {
-  clientId?: string;
-  status?: string;
-  locationAddress?: string;
-  workersMin?: number;
-  workersMax?: number;
-  dateInitFrom?: string;
-  dateInitTo?: string;
-  amountMin?: number;
-  amountMax?: number;
-}
-
-export interface PaidFilters extends PaginationParams {
-  projectId?: string;
-  bill?: string;
-  amountMin?: number;
-  amountMax?: number;
-  dateFrom?: string;
-  dateTo?: string;
-}
-
+// Note: UserFilters, ClientFilters, ProjectFilters, and PaidFilters
+// are now defined in their respective entity files

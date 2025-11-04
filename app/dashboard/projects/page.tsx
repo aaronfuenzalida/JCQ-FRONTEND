@@ -22,11 +22,8 @@ import {
   Text,
   NumberInput,
   Collapse,
-  ActionIcon,
-  Pagination as MantinePagination,
   Stack,
 } from "@mantine/core";
-import { DateInput } from "@mantine/dates";
 import { ProjectCard } from "@/src/presentation/components/projects/project-card";
 import { ProjectForm } from "@/src/presentation/components/projects/project-form";
 import { PaymentsModal } from "@/src/presentation/components/projects/payments-modal";
@@ -69,7 +66,7 @@ export default function ProjectsPage() {
     const cleanFilters: ProjectFilters = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== "" && value !== null) {
-        cleanFilters[key as keyof ProjectFilters] = value as any;
+        cleanFilters[key as keyof ProjectFilters] = value as never;
       }
     });
 

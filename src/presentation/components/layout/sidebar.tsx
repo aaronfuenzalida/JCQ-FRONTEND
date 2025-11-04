@@ -100,7 +100,7 @@ export function Sidebar() {
     }
   };
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <Box
       style={{
         height: "100%",
@@ -249,7 +249,7 @@ export function Sidebar() {
             boxShadow: "2px 0 8px rgba(0,0,0,0.5)",
           }}
         >
-          <SidebarContent />
+          {renderSidebarContent()}
         </Box>
       )}
 
@@ -289,7 +289,7 @@ export function Sidebar() {
             },
           }}
         >
-          <SidebarContent />
+          {renderSidebarContent()}
         </Drawer>
       )}
     </>

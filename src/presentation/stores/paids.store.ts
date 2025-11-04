@@ -56,11 +56,11 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
           isLoading: false,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (currentTimestamp >= get().lastFetchTimestamp) {
         set({
           isLoading: false,
-          error: error.message || 'Error al cargar pagos',
+          error: error instanceof Error ? error.message : String(error) || 'Error al cargar pagos',
         });
       }
     }
@@ -75,10 +75,10 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
         paids,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar pagos',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar pagos',
       });
     }
   },
@@ -92,10 +92,10 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
         selectedPaid: paid,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar pago',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar pago',
       });
     }
   },
@@ -113,10 +113,10 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
       }));
 
       return newPaid;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al crear pago',
+        error: error instanceof Error ? error.message : String(error) || 'Error al crear pago',
       });
       throw error;
     }
@@ -136,10 +136,10 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
       }));
 
       return updatedPaid;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al actualizar pago',
+        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar pago',
       });
       throw error;
     }
@@ -157,10 +157,10 @@ export const usePaidsStore = create<PaidsState>((set, get) => ({
         selectedPaid: state.selectedPaid?.id === id ? null : state.selectedPaid,
         isLoading: false,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al eliminar pago',
+        error: error instanceof Error ? error.message : String(error) || 'Error al eliminar pago',
       });
       throw error;
     }

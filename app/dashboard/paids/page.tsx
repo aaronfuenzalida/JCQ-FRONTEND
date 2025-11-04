@@ -53,7 +53,7 @@ export default function PaidsPage() {
     const cleanFilters: PaidFilters = {};
     Object.entries(filters).forEach(([key, value]) => {
       if (value !== undefined && value !== "" && value !== null) {
-        cleanFilters[key as keyof PaidFilters] = value as any;
+        cleanFilters[key as keyof PaidFilters] = value as never;
       }
     });
 

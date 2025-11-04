@@ -57,11 +57,11 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
           isLoading: false,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (currentTimestamp >= get().lastFetchTimestamp) {
         set({
           isLoading: false,
-          error: error.message || 'Error al cargar proyectos',
+          error: error instanceof Error ? error.message : String(error) || 'Error al cargar proyectos',
         });
       }
     }
@@ -76,10 +76,10 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
         selectedProject: project,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar proyecto',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar proyecto',
       });
     }
   },
@@ -97,10 +97,10 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
       }));
 
       return newProject;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al crear proyecto',
+        error: error instanceof Error ? error.message : String(error) || 'Error al crear proyecto',
       });
       throw error;
     }
@@ -120,10 +120,10 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
       }));
 
       return updatedProject;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al actualizar proyecto',
+        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar proyecto',
       });
       throw error;
     }
@@ -143,10 +143,10 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
       }));
 
       return updatedProject;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al actualizar estado',
+        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar estado',
       });
       throw error;
     }
@@ -164,10 +164,10 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
         selectedProject: state.selectedProject?.id === id ? null : state.selectedProject,
         isLoading: false,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al eliminar proyecto',
+        error: error instanceof Error ? error.message : String(error) || 'Error al eliminar proyecto',
       });
       throw error;
     }

@@ -71,10 +71,10 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null,
             });
-          } catch (error: any) {
+          } catch (error: unknown) {
             set({
               isLoading: false,
-              error: error.message || "Error al iniciar sesión",
+              error: error instanceof Error ? error.message : String(error) || "Error al iniciar sesión",
             });
             throw error;
           }

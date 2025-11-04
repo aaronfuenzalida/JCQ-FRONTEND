@@ -55,11 +55,11 @@ export const useUsersStore = create<UsersState>((set, get) => ({
           isLoading: false,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (currentTimestamp >= get().lastFetchTimestamp) {
         set({
           isLoading: false,
-          error: error.message || 'Error al cargar usuarios',
+          error: error instanceof Error ? error.message : String(error) || 'Error al cargar usuarios',
         });
       }
     }
@@ -74,10 +74,10 @@ export const useUsersStore = create<UsersState>((set, get) => ({
         selectedUser: user,
         isLoading: false,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al cargar usuario',
+        error: error instanceof Error ? error.message : String(error) || 'Error al cargar usuario',
       });
     }
   },
@@ -95,10 +95,10 @@ export const useUsersStore = create<UsersState>((set, get) => ({
       }));
 
       return newUser;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al crear usuario',
+        error: error instanceof Error ? error.message : String(error) || 'Error al crear usuario',
       });
       throw error;
     }
@@ -118,10 +118,10 @@ export const useUsersStore = create<UsersState>((set, get) => ({
       }));
 
       return updatedUser;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al actualizar usuario',
+        error: error instanceof Error ? error.message : String(error) || 'Error al actualizar usuario',
       });
       throw error;
     }
@@ -139,10 +139,10 @@ export const useUsersStore = create<UsersState>((set, get) => ({
         selectedUser: state.selectedUser?.id === id ? null : state.selectedUser,
         isLoading: false,
       }));
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({
         isLoading: false,
-        error: error.message || 'Error al eliminar usuario',
+        error: error instanceof Error ? error.message : String(error) || 'Error al eliminar usuario',
       });
       throw error;
     }
