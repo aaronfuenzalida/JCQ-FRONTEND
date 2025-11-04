@@ -203,15 +203,82 @@ Los colores de marca JCQ están configurados en `globals.css`:
 
 ```bash
 # Desarrollo
-pnpm dev           # Iniciar servidor de desarrollo
+pnpm dev           # Iniciar servidor de desarrollo (puerto 3001)
 
 # Producción
 pnpm build         # Construir para producción
-pnpm start         # Iniciar servidor de producción
+pnpm start         # Iniciar servidor de producción (Railway asigna el puerto)
+pnpm start:dev     # Iniciar en desarrollo con puerto 3001
 
-# Linting
+# Linting y mantenimiento
 pnpm lint          # Ejecutar ESLint
+pnpm lint:fix      # Arreglar errores de ESLint
+pnpm type-check    # Verificar tipos TypeScript
+pnpm clean         # Limpiar .next y node_modules
+pnpm reinstall     # Reinstalar dependencias desde cero
 ```
+
+## 🚂 Deploy en Railway
+
+Este proyecto está optimizado para deployar en Railway con **Nixpacks** y **pnpm**.
+
+### Configuración Automática
+
+Railway detecta automáticamente:
+- ✅ `pnpm` como gestor de paquetes (gracias a `packageManager` en package.json)
+- ✅ Node.js 20+ como runtime
+- ✅ Nixpacks como builder
+- ✅ Comando de build: `pnpm build`
+- ✅ Comando de start: `pnpm start`
+
+### Variables de Entorno en Railway
+
+Configura estas variables en tu proyecto de Railway:
+
+```env
+# Backend API URL (Railway backend service)
+NEXT_PUBLIC_BASE_URL=https://tu-backend.railway.app
+
+# Node environment
+NODE_ENV=production
+```
+
+### Deployment
+
+1. **Conectar repositorio** en Railway
+2. **Configurar variables de entorno** en Settings → Variables
+3. **Deploy automático** en cada push a main/master
+
+### Archivos de Configuración
+
+- `nixpacks.toml` - Configuración de Nixpacks para Railway
+- `railway.json` - Configuración específica de Railway
+- `.npmrc` - Configuración de pnpm
+- `.railwayignore` - Archivos ignorados en deploy
+
+### Comandos en Railway
+
+Railway ejecutará automáticamente:
+
+```bash
+# Install
+pnpm install --frozen-lockfile
+
+# Build
+pnpm run build
+
+# Start
+pnpm start
+```
+
+### Verificación de Deploy
+
+Después del deploy, verifica:
+- ✅ Build exitoso en Railway logs
+- ✅ Aplicación corriendo en la URL asignada
+- ✅ Conectividad con el backend
+- ✅ Login funcional
+- ✅ Datos cargando correctamente
 
 ## 📝 Convenciones de Código
 
