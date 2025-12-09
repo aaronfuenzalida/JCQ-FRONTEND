@@ -23,6 +23,7 @@ import {
   ActionIcon,
   Drawer,
 } from "@mantine/core";
+import { hr } from "date-fns/locale";
 
 const navigation = [
   {
@@ -42,6 +43,12 @@ const navigation = [
     href: "/dashboard/clients",
     icon: Users,
     roles: ["ADMIN", "SUBADMIN", "MANAGER"],
+  },
+  {
+    name: "Personal",
+    href: "/dashboard/staff",
+    icon: Users,
+    roles: ["ADMIN", "SUBADMIN","MANAGER"],
   },
   {
     name: "Usuarios",
