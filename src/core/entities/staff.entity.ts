@@ -22,7 +22,35 @@ export interface UpdateStaffDto extends Partial<CreateStaffDto> {}
 export interface StaffFilters {
   page?: number;
   limit?: number;
-  firstName?: string; // Nota: El backend espera firstName, no fullname
+  firstName?: string;
   dni?: string;
   cuit?: string;
+}
+
+export interface WorkRecord {
+  id: string;
+  staffId: string;
+  date: string;
+  hours: number;
+  description?: string;
+}
+
+// Interfaz que espera el backend para POST
+export interface CreateWorkRecordDto {
+  staffId: string;
+  valuePerHour: number;
+  advance: number;
+  hoursMonday: number;
+  hoursTuesday: number;
+  hoursWednesday: number;
+  hoursThursday: number;
+  hoursFriday: number;
+  startDate: string; 
+}
+
+// Interfaz que espera el backend para PATCH
+export interface UpdateWorkRecordDto {
+  hours?: number;
+  description?: string;
+  date?: string;
 }

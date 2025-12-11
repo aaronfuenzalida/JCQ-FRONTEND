@@ -11,6 +11,7 @@ import {
   Building2,
   X,
   DollarSign,
+  IdCard,
 } from "lucide-react";
 import { useAuthStore } from "@/src/presentation/stores";
 import {
@@ -47,7 +48,7 @@ const navigation = [
   {
     name: "Personal",
     href: "/dashboard/staff",
-    icon: Users,
+    icon: IdCard,
     roles: ["ADMIN", "SUBADMIN","MANAGER"],
   },
   {

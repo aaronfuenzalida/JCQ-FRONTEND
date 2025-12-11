@@ -5,10 +5,8 @@ import { Plus, Filter, X } from "lucide-react";
 import { Header } from "@/src/presentation/components/layout/header";
 import { staffApi } from "@/src/infrastructure/api/staff.api";
 import type { Staff } from "@/src/core/entities";
-// IMPORTAMOS LOS COMPONENTES DE FORMULARIO
 import { StaffForm } from "@/src/presentation/components/staff/staff-form";
 import { StaffHoursModal } from "@/src/presentation/components/staff/staff-hours-modal"; 
-
 import {
   Button,
   TextInput,
@@ -29,10 +27,8 @@ export default function StaffPage() {
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Estado para Modal de Creación/Edición de Empleado
   const [isFormOpen, setIsFormOpen] = useState(false);
   
-  // Estado para Modal de Carga de Horas (NUEVO)
   const [isHoursModalOpen, setIsHoursModalOpen] = useState(false);
   
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
@@ -47,8 +43,8 @@ export default function StaffPage() {
     dni: undefined,
   });
 
-  // --- LOGICA DE DATOS ---
-
+  
+  // Logica de datos
   const fetchStaffData = async () => {
     try {
       setIsLoading(true);
@@ -70,14 +66,13 @@ export default function StaffPage() {
 
   useEffect(() => {
     fetchStaffData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.page, filters.limit, filters.firstName, filters.lastName, filters.dni]);
 
-  // --- MANEJADORES ---
+  //Manejadores 
 
   const handleEdit = (staff: Staff) => {
     setSelectedStaff(staff);
-    setIsFormOpen(true); // Abre modal de formulario datos
+    setIsFormOpen(true); // Abre modal para formulario de datos
   };
 
   const handleLoadHours = (staff: Staff) => {
@@ -94,16 +89,6 @@ export default function StaffPage() {
         console.error("Error al eliminar", error);
       }
     }
-  };
-
-  // Función para guardar las horas (Simulación de Backend)
-  const handleSaveHours = async (data: any) => {
-    console.log("Datos de horas a guardar:", data);
-    // AQUÍ LLAMARÍAS A TU API, EJ:
-    // await staffApi.saveHours(data); 
-    
-    alert(`Se registraron ${data.totalHours} horas. Total a pagar: $${data.totalPay}`);
-    setIsHoursModalOpen(false);
   };
 
   const handleFormSuccess = () => {
@@ -139,7 +124,7 @@ export default function StaffPage() {
       />
 
       <Box p="xl">
-        {/* --- FILTROS --- */}
+        {/*Filtros*/}
         <Stack gap="md" mb="xl">
           <Group gap="md">
             <TextInput
@@ -186,7 +171,7 @@ export default function StaffPage() {
           </Collapse>
         </Stack>
 
-        {/* --- LISTA --- */}
+        {/*Lista*/}
         {isLoading ? (
           <Box style={{ display: "flex", justifyContent: "center", padding: "3rem 0" }}>
             <Loader size="lg" color="orange" />
@@ -249,7 +234,7 @@ export default function StaffPage() {
         )}
       </Box>
 
-      {/* --- MODAL 1: DATOS DEL EMPLEADO --- */}
+      {/*MODAL DE DATOS DEL EMPLEADO */}
       <Modal 
         opened={isFormOpen} 
         onClose={() => setIsFormOpen(false)}
@@ -266,27 +251,28 @@ export default function StaffPage() {
         <StaffForm initialData={selectedStaff} onClose={() => setIsFormOpen(false)} onSuccess={handleFormSuccess} />
       </Modal>
 
-      {/* --- MODAL 2: CARGA DE HORAS (NUEVO) --- */}
+      {/* MODAL DE CARGA DE HORAS  */}
       <Modal 
         opened={isHoursModalOpen} 
         onClose={() => setIsHoursModalOpen(false)}
-        title="Registro de Horas Semanales"
-        size="md"
+        title="Registro de horas por semana"
+        size="70%"
         centered
         styles={{
-          header: { backgroundColor: "#1a1a1a", color: "white" },
-          content: { backgroundColor: "#1a1a1a", border: "1px solid #2d2d2d" },
-          title: { fontWeight: 'bold' },
-          close: { color: "#9ca3af", '&:hover': { backgroundColor: "#2d2d2d" } }
-        }}
+        header: { backgroundColor: "#1a1a1a", color: "white" },
+        content: { backgroundColor: "#1a1a1a", border: "1px solid #2d2d2d" },
+        title: { fontWeight: 'bold' },
+        close: { color: "#9ca3af", '&:hover': { backgroundColor: "#2d2d2d" } }
+      }}
       >
         <StaffHoursModal 
-          staff={selectedStaff} 
-          onClose={() => setIsHoursModalOpen(false)} 
-          onSave={handleSaveHours} 
-        />
+        staff={selectedStaff} 
+        onClose={() => setIsHoursModalOpen(false)} 
+        onSuccess={() => {
+        setIsHoursModalOpen(false);
+        fetchStaffData(); 
+        }} />
       </Modal>
-
     </Box>
   );
 }
