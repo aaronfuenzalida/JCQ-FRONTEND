@@ -6,4 +6,5 @@ export * from './auth.entity';
 export * from './api-response.entity';
 export * from './dashboard.entity';
 export * from './staff.entity';
+export * from './structure-entity';
 

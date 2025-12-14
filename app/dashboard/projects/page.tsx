@@ -3,11 +3,8 @@
 import { useEffect, useState } from "react";
 import {
   Plus,
-  Search,
   Filter,
-  X,
-  ChevronLeft,
-  ChevronRight,
+  X
 } from "lucide-react";
 import { Header } from "@/src/presentation/components/layout/header";
 import { useProjectsStore } from "@/src/presentation/stores";

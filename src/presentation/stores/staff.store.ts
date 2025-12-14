@@ -18,6 +18,7 @@ interface StaffState {
 
   // Actions
   fetchStaff: (filters?: StaffFilters) => Promise<void>;
+  fetchStaffPaginated: (filters?: StaffFilters) => Promise<void>;
   createStaff: (data: CreateStaffDto) => Promise<Staff>;
   updateStaff: (id: string, data: UpdateStaffDto) => Promise<Staff>;
   deleteStaff: (id: string) => Promise<void>;
@@ -60,6 +61,37 @@ export const useStaffStore = create<StaffState>((set, get) => ({
       }
     }
   },
+
+  fetchStaffPaginated: async (filters?: StaffFilters) => {
+      const currentTimestamp = Date.now();
+      
+      // Prevent race condition
+      if (get().isLoading && currentTimestamp - get().lastFetchTimestamp < 1000) {
+        return;
+      }
+  
+      set({ isLoading: true, error: null, lastFetchTimestamp: currentTimestamp });
+  
+      try {
+        const response = await staffApi.getPaginated(filters);
+        
+        // Only update if this is still the most recent request
+        if (currentTimestamp >= get().lastFetchTimestamp) {
+          set({
+            staffList: response.data,
+            meta: response.meta,
+            isLoading: false,
+          });
+        }
+      } catch (error: unknown) {
+        if (currentTimestamp >= get().lastFetchTimestamp) {
+          set({
+            isLoading: false,
+            error: error instanceof Error ? error.message : String(error) || 'Error al cargar empleados',
+          });
+        }
+      }
+    },
 
   createStaff: async (data: CreateStaffDto) => {
     set({ isLoading: true, error: null });

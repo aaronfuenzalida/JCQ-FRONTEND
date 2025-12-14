@@ -10,6 +10,7 @@ import {
   CreditCard,
   CheckCircle,
   FileText,
+  Package, 
 } from "lucide-react";
 import type { Project } from "@/src/core/entities";
 import { useProjectsStore } from "@/src/presentation/stores";
@@ -23,6 +24,7 @@ import {
   Progress,
   ActionIcon,
   Box,
+  Popover, 
 } from "@mantine/core";
 import {
   formatDate,
@@ -110,6 +112,8 @@ export function ProjectCard({ project, onViewPayments }: ProjectCardProps) {
   };
 
   const progressPercentage = (project.totalPaid / project.amount) * 100;
+  // Calcular si hay estructuras para mostrar
+  const totalStructuresCount = project.structures?.length || 0;
 
   return (
     <>
@@ -217,6 +221,47 @@ export function ProjectCard({ project, onViewPayments }: ProjectCardProps) {
               </Text>
             </Group>
           </Group>
+
+          {/* Estructuras asignadas */}
+          {totalStructuresCount > 0 && (
+            <Popover width={300} position="bottom" withArrow shadow="md">
+              <Popover.Target>
+                <Button 
+                  variant="default" 
+                  size="xs" 
+                  fullWidth 
+                  color="gray"
+                  leftSection={<Package size={14} />}
+                  styles={{ 
+                    root: { 
+                      backgroundColor: "rgba(255, 255, 255, 0.03)", 
+                      borderColor: "#2d2d2d",
+                      color: "#9ca3af",
+                      height: "32px"
+                    },
+                    label: { fontWeight: 500 }
+                  }}
+                >
+                  {totalStructuresCount} {totalStructuresCount === 1 ? "Estructura asignada" : "Estructuras asignadas"}
+                </Button>
+              </Popover.Target>
+              <Popover.Dropdown style={{ backgroundColor: "#1a1a1a", borderColor: "#2d2d2d", padding: "12px" }}>
+                <Text size="xs" fw={700} c="dimmed" mb="xs" tt="uppercase" style={{ letterSpacing: "0.5px" }}>Materiales</Text>
+                <Stack gap={8}>
+                  {project.structures?.map((item) => (
+                    <Group key={item.id} justify="space-between" wrap="nowrap" align="center">
+                      <Text size="xs" c="white" style={{ flex: 1, lineHeight: 1.3 }}>
+                        {item.structure?.name || "Item"}
+                      </Text>
+                      <Badge size="xs" color="orange" variant="light" style={{ flexShrink: 0 }}>
+                        {item.quantity} unidades
+                      </Badge>
+                    </Group>
+                  ))}
+                </Stack>
+              </Popover.Dropdown>
+            </Popover>
+          )}
 
           {/* Actions */}
           <Stack gap="xs">

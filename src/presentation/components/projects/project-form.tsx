@@ -16,7 +16,9 @@ import {
   Group,
   Grid,
   Stack,
+  Divider,
 } from "@mantine/core";
+import { ProjectStructuresSelector, SelectedItem } from "./project-structure-selector";
 
 interface ProjectFormProps {
   isOpen: boolean;
@@ -40,8 +42,9 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
     dateEnd: "",
   });
 
+  const [selectedStructures, setSelectedStructures] = useState<SelectedItem[]>([]);
+
   useEffect(() => {
-    // Only fetch clients when the modal opens and we don't have clients yet
     if (isOpen && clients.length === 0) {
       fetchAllClients();
     }
@@ -61,7 +64,25 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
         dateInit: project.dateInit.split("T")[0],
         dateEnd: project.dateEnd.split("T")[0],
       });
+
+      // Logica de carga de estructuras
+      if (project.structures && project.structures.length > 0) {
+        const mappedStructures: SelectedItem[] = project.structures.map((ps) => {
+          return {
+            structureId: ps.structureId,
+            name: ps.structure.name,
+            quantity: ps.quantity,
+            maxStock: ps.structure.stock + ps.quantity 
+          };
+        });
+        setSelectedStructures(mappedStructures);
+      } else {
+        setSelectedStructures([]);
+      }
+
+
     } else {
+      // Limpiar para nuevo proyecto
       setFormData({
         amount: "",
         clientId: "",
@@ -73,14 +94,20 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
         dateInit: "",
         dateEnd: "",
       });
+      setSelectedStructures([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project, isOpen]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
+      const structuresPayload = selectedStructures.map(s => ({
+        structureId: s.structureId,
+        quantity: s.quantity
+      }));
+
       const data = {
         amount: parseFloat(formData.amount),
         clientId: formData.clientId,
@@ -95,17 +122,18 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
         event: formData.event.trim(),
         dateInit: formData.dateInit,
         dateEnd: formData.dateEnd,
+        structures: structuresPayload 
       };
 
       if (project) {
         await updateProject(project.id, data as UpdateProjectDto);
       } else {
-        await createProject(data as CreateProjectDto);
+        await createProject(data as unknown as CreateProjectDto);
       }
 
       onClose();
     } catch (error) {
-      // Error handled by store
+      console.error(error);
     }
   };
 
@@ -140,6 +168,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
     >
       <form onSubmit={handleSubmit}>
         <Stack gap="md">
+          {/* Datos */}
           <Grid gutter="md">
             <Grid.Col span={6}>
               <Select
@@ -151,6 +180,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                   setFormData({ ...formData, clientId: value || "" })
                 }
                 required
+                searchable
                 styles={{
                   label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                   input: {
@@ -158,6 +188,15 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                     borderColor: "#404040",
                     color: "white",
                   },
+                  dropdown: {
+                    backgroundColor: "#1a1a1a",
+                    borderColor: "#2d2d2d",
+                    color: "white"
+                  },
+                  option: { 
+                    '&[data-hovered]': { backgroundColor: "#2d2d2d" },
+                    '&[data-selected]': { backgroundColor: "#f97316", color: "white" } 
+                  }
                 }}
               />
             </Grid.Col>
@@ -178,6 +217,7 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                 thousandSeparator="."
                 decimalSeparator=","
                 decimalScale={0}
+                prefix="$ "
                 styles={{
                   label: { color: "#e5e7eb", marginBottom: "0.5rem" },
                   input: {
@@ -227,48 +267,6 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
           />
 
           <Grid gutter="md">
-            {/* <Grid.Col span={4}>
-              <TextInput
-                label="Latitud (opcional)"
-                type="number"
-                step="any"
-                placeholder="-34.6037"
-                value={formData.locationLat}
-                onChange={(e) =>
-                  setFormData({ ...formData, locationLat: e.target.value })
-                }
-                styles={{
-                  label: { color: "#e5e7eb", marginBottom: "0.5rem" },
-                  input: {
-                    backgroundColor: "#2d2d2d",
-                    borderColor: "#404040",
-                    color: "white",
-                  },
-                }}
-              />
-            </Grid.Col>
-
-            <Grid.Col span={4}>
-              <TextInput
-                label="Longitud (opcional)"
-                type="number"
-                step="any"
-                placeholder="-58.3816"
-                value={formData.locationLng}
-                onChange={(e) =>
-                  setFormData({ ...formData, locationLng: e.target.value })
-                }
-                styles={{
-                  label: { color: "#e5e7eb", marginBottom: "0.5rem" },
-                  input: {
-                    backgroundColor: "#2d2d2d",
-                    borderColor: "#404040",
-                    color: "white",
-                  },
-                }}
-              />
-            </Grid.Col> */}
-
             <Grid.Col span={4}>
               <NumberInput
                 label="Trabajadores"
@@ -293,10 +291,8 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                 }}
               />
             </Grid.Col>
-          </Grid>
-
-          <Grid gutter="md">
-            <Grid.Col span={6}>
+          
+            <Grid.Col span={4}>
               <TextInput
                 label="Fecha Inicio"
                 type="date"
@@ -311,12 +307,13 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                     backgroundColor: "#2d2d2d",
                     borderColor: "#404040",
                     color: "white",
+                    colorScheme: "dark"
                   },
                 }}
               />
             </Grid.Col>
 
-            <Grid.Col span={6}>
+            <Grid.Col span={4}>
               <TextInput
                 label="Fecha Fin"
                 type="date"
@@ -331,12 +328,24 @@ export function ProjectForm({ isOpen, onClose, project }: ProjectFormProps) {
                     backgroundColor: "#2d2d2d",
                     borderColor: "#404040",
                     color: "white",
+                    colorScheme: "dark"
                   },
                 }}
               />
             </Grid.Col>
           </Grid>
 
+          <Divider my="xs" color="#2d2d2d" />
+
+          {/* Selector de estructuras que ya existen */}
+          <ProjectStructuresSelector 
+            value={selectedStructures}
+            onChange={setSelectedStructures}
+          />
+
+          <Divider my="xs" color="#2d2d2d" />
+
+          {/* Botones de accion */}
           <Group justify="flex-end" mt="md">
             <Button
               type="button"

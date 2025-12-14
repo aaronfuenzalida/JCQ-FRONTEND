@@ -9,6 +9,7 @@ import {
   UserCog,
   LogOut,
   Building2,
+  Building,
   X,
   DollarSign,
   IdCard,
@@ -37,6 +38,12 @@ const navigation = [
     name: "Proyectos",
     href: "/dashboard/projects",
     icon: FolderKanban,
+    roles: ["ADMIN", "SUBADMIN", "MANAGER"],
+  },
+  {
+    name: "Estructuras",
+    href: "/dashboard/structures",
+    icon: Building,
     roles: ["ADMIN", "SUBADMIN", "MANAGER"],
   },
   {

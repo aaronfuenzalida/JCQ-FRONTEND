@@ -1,4 +1,5 @@
 import type { Client } from "./client.entity";
+import type { Structure } from "./structure-entity";
 
 export type ProjectStatus =
   | "BUDGET"
@@ -29,6 +30,7 @@ export interface Project {
   locationLat: number | null;
   locationLng: number | null;
   workers: number;
+  structures?: ProjectStructure[];
   event: string;
   dateInit: string;
   dateEnd: string;
@@ -74,4 +76,16 @@ export interface ProjectFilters {
   dateInitTo?: string;
   amountMin?: number;
   amountMax?: number;
+}
+
+export interface ProjectStructure {
+    id: string;             
+    quantity: number;       
+    structureId: string;
+    structure: Structure;   
+}
+
+export interface ProjectStructureDto {
+    structureId: string;
+    quantity: number;
 }

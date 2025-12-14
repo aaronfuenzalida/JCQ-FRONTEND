@@ -18,6 +18,13 @@ export const staffApi = {
     return data.data;
   },
 
+  async getPaginated(filters?: StaffFilters): Promise<ApiResponse<Staff[]>> {
+      const { data } = await apiClient.get<ApiResponse<Staff[]>>('/staff/pagination', {
+        params: filters,
+      });
+      return data;
+    },
+
   async create(staffData: CreateStaffDto): Promise<Staff> {
     const { data } = await apiClient.post<ApiResponse<Staff>>('/staff', staffData);
     return data.data;
