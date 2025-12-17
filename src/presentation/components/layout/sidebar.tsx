@@ -11,6 +11,7 @@ import {
   Building2,
   Building,
   X,
+  Newspaper,
   DollarSign,
   IdCard,
 } from "lucide-react";
@@ -63,6 +64,12 @@ const navigation = [
     href: "/dashboard/users",
     icon: UserCog,
     roles: ["ADMIN", "SUBADMIN"],
+  },
+  {
+    name: "Presupuestos",
+    href: "/dashboard/budgets",
+    icon: Newspaper,
+    roles: ["ADMIN", "SUBADMIN", "MANAGER"],
   },
   {
     name: "Pagos",

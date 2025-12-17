@@ -1,0 +1,68 @@
+import { Client } from "./client.entity";
+import { Structure } from "./structure-entity"; 
+
+export interface BudgetItem {
+  id: string;
+  quantity: number;
+  manualName?: string;
+  structureId?: string;
+  structure?: Structure;
+}
+
+export interface Budget {
+  id: string;
+  date: string; 
+  
+  clientId?: string;
+  client?: Client;
+  
+  manualClientName?: string;
+  manualClientCuit?: string;
+  
+  netAmount: number;    // Neto (decidido por usuario)
+  totalAmount: number;  // Bruto (calculado)
+  
+  hasIva: boolean;
+  ivaPercentage: number;
+  ivaValue: number;
+  
+  hasIibb: boolean;
+  iibbPercentage: number;
+  iibbValue: number;
+  
+  items: BudgetItem[];
+  
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateBudgetItemDto {
+  quantity: number;
+  structureId?: string; // Opcional si es manual
+  manualName?: string;  // Opcional si es estructura
+}
+
+export interface CreateBudgetDto {
+  date: string;
+  clientId?: string;
+  manualClientName?: string;
+  manualClientCuit?: string;
+  
+  hasIva: boolean;
+  ivaPercentage: number;
+  hasIibb: boolean;
+  iibbPercentage: number;
+  
+  netAmount: number;
+  
+  items: CreateBudgetItemDto[];
+}
+
+export interface UpdateBudgetDto extends Partial<CreateBudgetDto> {}
+
+export interface BudgetFilters {
+  clientId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
