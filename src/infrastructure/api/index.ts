@@ -6,4 +6,5 @@ export * from './projects.api';
 export * from './paids.api';
 export * from './dashboard.api';
 export * from './structures.api';
+export * from './collaborators.api'
 

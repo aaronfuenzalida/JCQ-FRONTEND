@@ -8,4 +8,5 @@ export * from './dashboard.entity';
 export * from './staff.entity';
 export * from './structure-entity';
 export * from './budget.entity';
+export * from './collaborators-entity'
 

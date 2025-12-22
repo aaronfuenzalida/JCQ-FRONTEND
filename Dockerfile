@@ -14,7 +14,9 @@ WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 # Copy package files
-COPY package.json pnpm-lock.yaml .npmrc ./
+COPY package.json pnpm-lock.yaml ./
+# Copy .npmrc if it exists (optional for Railway)
+COPY .npmrc* ./
 
 # Install dependencies with frozen lockfile
 RUN pnpm install --frozen-lockfile
@@ -66,10 +68,17 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 USER nextjs
 
-EXPOSE 3000
-
+# Railway assigns PORT dynamically, use it from environment
+# Default to 3000 if PORT is not set
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
+
+# Expose port (Railway will map to the PORT env var)
+EXPOSE 3000
+
+# Health check for Railway
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:' + (process.env.PORT || 3000) + '/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
 # Start Next.js production server
 CMD ["node", "server.js"]
