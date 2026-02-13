@@ -162,7 +162,7 @@ export function Header({ title, description, action }: HeaderProps) {
                         </ThemeIcon>
                         <Stack gap={2}>
                           <Text size="sm" c="white" fw={600} style={{ lineHeight: 1.2 }}>
-                            {project.event.toUpperCase()}
+                            {project.event?.toUpperCase() || 'SIN EVENTO REGISTRADO'}
                           </Text>
                           <Text size="xs" c="dimmed">
                             Vence: <Text span c="red.4" fw={700}>{new Date(project.dateEnd).toLocaleDateString()}</Text>
